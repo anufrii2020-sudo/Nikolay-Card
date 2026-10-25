@@ -1,12 +1,10 @@
-/* Только визуальное появление; ссылки и содержимое работают без JavaScript. */
-if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window) {
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('reveal');
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.12 });
-  document.querySelectorAll('.card, .closing').forEach((element) => observer.observe(element));
+/** Прямой чат с username; сообщение остаётся черновиком до отправки посетителем. */
+function telegramChatLink(message) {
+  return `https://t.me/Nikolai_Makes_Sense?text=${encodeURIComponent(message)}`;
 }
+
+// Такие же полноценные href уже есть в HTML и работают без JavaScript.
+// При изменении data-telegram-message ссылка обновится автоматически.
+document.querySelectorAll('a[data-telegram-message]').forEach((link) => {
+  link.href = telegramChatLink(link.dataset.telegramMessage);
+});
