@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="700" viewBox="0 0 800 700" fill="none">
+<defs>
+<linearGradient id="trailer" x1="130" y1="160" x2="650" y2="440" gradientUnits="userSpaceOnUse"><stop stop-color="#48463e"/><stop offset=".4" stop-color="#252a28"/><stop offset="1" stop-color="#121817"/></linearGradient>
+<linearGradient id="cab" x1="440" y1="200" x2="680" y2="520" gradientUnits="userSpaceOnUse"><stop stop-color="#8a8370"/><stop offset=".27" stop-color="#53564e"/><stop offset=".7" stop-color="#252b28"/><stop offset="1" stop-color="#151b19"/></linearGradient>
+<linearGradient id="front" x1="540" y1="300" x2="710" y2="500"><stop stop-color="#454a41"/><stop offset="1" stop-color="#1a201c"/></linearGradient>
+<linearGradient id="glass" x1="530" y1="270" x2="650" y2="380"><stop stop-color="#394340"/><stop offset="1" stop-color="#090f0f"/></linearGradient>
+<radialGradient id="glow"><stop stop-color="#ae8651" stop-opacity=".15"/><stop offset="1" stop-color="#ae8651" stop-opacity="0"/></radialGradient>
+<pattern id="ribs" width="14" height="450" patternUnits="userSpaceOnUse" patternTransform="skewY(18)"><path d="M1 0v450" stroke="#a5a28e" stroke-opacity=".12"/><path d="M3 0v450" stroke="#050a09" stroke-opacity=".4"/></pattern>
+</defs>
+<ellipse cx="435" cy="365" rx="340" ry="290" fill="url(#glow)"/>
+<path d="m50 551 444-115 265 96-374 104z" fill="#080c0b" opacity=".7"/>
+<g stroke="#b29d7d" stroke-opacity=".2" stroke-linejoin="round">
+<path d="m106 188 308-69 190 96-308 84z" fill="#55574b"/><path d="m106 188 190 111v213L108 391z" fill="#272d28"/><path d="m296 299 308-84v211l-308 86z" fill="url(#trailer)"/><path d="m296 299 308-84v211l-308 86z" fill="url(#ribs)"/><path d="m106 188 190 111 308-84" stroke="#c8b08b" stroke-opacity=".4" stroke-width="2"/>
+<path d="m110 389 186 116 309-85v17l-309 86-186-117z" fill="#131a16"/>
+<path d="m132 206 1 184m55-154v187m54-153v188"/><path d="m110 372 185 112"/>
+</g>
+<g fill="#0a0f0e" stroke="#41453b" stroke-width="4">
+<ellipse cx="322" cy="504" rx="25" ry="41" transform="rotate(-13 322 504)"/><ellipse cx="373" cy="490" rx="25" ry="41" transform="rotate(-13 373 490)"/><ellipse cx="573" cy="468" rx="25" ry="41"/>
+</g>
+<g fill="#43473d" stroke="#1e2720" stroke-width="7"><ellipse cx="325" cy="506" rx="12" ry="23" transform="rotate(-13 325 506)"/><ellipse cx="376" cy="492" rx="12" ry="23" transform="rotate(-13 376 492)"/></g>
+<path d="m448 278 100-45 79 33 65 124 11 114-112 58-143-81z" fill="url(#cab)" stroke="#8e8e76" stroke-opacity=".35"/>
+<path d="m448 278 53 30 90 38 36-80-79-33z" fill="#6b6d5d"/><path d="m501 308 90 38 101 44-65-124z" fill="#4a5145"/>
+<path d="m505 319 87 35 58-28 24 60-85 43-85-43z" fill="url(#glass)" stroke="#0c1511" stroke-width="5"/>
+<path d="m460 298 34 20-1 66-32-21z" fill="url(#glass)" stroke="#131c17" stroke-width="4"/>
+<path d="m589 429 103-39 11 114-112 58z" fill="url(#front)" stroke="#636b57" stroke-opacity=".5"/>
+<path d="m458 372 42 25 88 42 3 123-38-20-16-70-34-20-12 54-43-25z" fill="url(#cab)"/><path d="m502 397 1 55m-45-65 33 20m-18 3 12 6m-37 50 39 25" stroke="#9b9e83" stroke-opacity=".35"/>
+<path d="m602 453 81-33 4 54-82 38z" fill="#090f0d" stroke="#6b705c" stroke-opacity=".4"/>
+<path d="m607 465 72-30m-71 41 73-31m-72 43 73-33m-72 44 72-33" stroke="#6f7863" stroke-opacity=".6" stroke-width="3"/>
+<path d="m595 527 102-47 3 17-105 49z" fill="#555d4c"/><path d="m597 514 20-9 1 13-20 9zm78-36 18-8 1 13-19 9z" fill="#d2c4a0"/><path d="m621 535 43-19 1 9-43 20z" fill="#191e18"/>
+<path d="m590 431-5-40 13-6 4 36m-137-55-13-7v-35l9 5" stroke="#181f19" stroke-width="7"/>
+<ellipse cx="541" cy="518" rx="26" ry="42" transform="rotate(-12 541 518)" fill="#090e0b" stroke="#444b3b" stroke-width="4"/>
+<ellipse cx="544" cy="519" rx="14" ry="26" transform="rotate(-12 544 519)" fill="#747968" stroke="#252e24" stroke-width="6"/>
+<ellipse cx="545" cy="519" rx="5" ry="12" fill="#282e24"/>
+<path d="m102 570 180 51m132-11 304-82" stroke="#b18b60" stroke-opacity=".25"/>
+<path d="M65 445h45m-22-22v44M690 205h45m-22-22v44" stroke="#b18b60" stroke-opacity=".3"/>
+</svg>
