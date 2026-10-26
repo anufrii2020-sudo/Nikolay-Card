@@ -8,3 +8,24 @@ function telegramChatLink(message) {
 document.querySelectorAll('a[data-telegram-message]').forEach((link) => {
   link.href = telegramChatLink(link.dataset.telegramMessage);
 });
+
+/** Разворачиваем только Mini App, запущенный Telegram с данными инициализации. */
+function initTelegramMiniApp() {
+  const webApp = window.Telegram && window.Telegram.WebApp;
+  // В обычном браузере SDK также может существовать, но initData остаётся пустым.
+  if (!webApp || !webApp.initData) return;
+
+  try {
+    if (typeof webApp.ready === 'function') webApp.ready();
+  } catch (error) {
+    // Недоступный мост Telegram не должен мешать странице и контактным ссылкам.
+  }
+
+  try {
+    if (typeof webApp.expand === 'function') webApp.expand();
+  } catch (error) {
+    // Старые или ограниченные клиенты могут не поддерживать разворачивание.
+  }
+}
+
+initTelegramMiniApp();
