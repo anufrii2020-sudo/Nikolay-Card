@@ -154,3 +154,132 @@ test('Telegram API errors are sanitized', async (t) => {
   assert.equal(response.status, 502);
   assert.deepEqual(await response.json(), { ok: false, error: 'telegram_unavailable' });
 });
+
+test('diagnose authenticates the exact key without any Telegram API call', async (t) => {
+  const mock = t.mock.method(globalThis, 'fetch', async () => { throw Error('must not call'); });
+  const response = await worker.fetch(owner('diagnose'), env);
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.equal(body.ok, true);
+  assert.equal(body.telegram_checked, false);
+  assert.equal(body.diagnostics.authenticated, true);
+  assert.equal(body.diagnostics.setup_key_present, true);
+  assert.equal(body.diagnostics.setup_key_format_valid, true);
+  assert.equal(mock.mock.callCount(), 0);
+});
+
+test('setup accepts password-manager punctuation and case-insensitive Bearer scheme', async (t) => {
+  const mock = t.mock.method(globalThis, 'fetch', async () => { throw Error('must not call'); });
+  const withPunctuation = { ...env, SETUP_KEY: 'Synthetic!Owner#Password$With%Punctuation' };
+  const request = owner('diagnose', withPunctuation.SETUP_KEY);
+  request.headers.set('Authorization', `bEaReR\t ${withPunctuation.SETUP_KEY}`);
+  const response = await worker.fetch(request, withPunctuation);
+  assert.equal(response.status, 200);
+  assert.equal((await response.json()).diagnostics.authenticated, true);
+  assert.equal(mock.mock.callCount(), 0);
+});
+
+for (const [name, key, reason] of [
+  ['absent binding', undefined, 'setup_key_missing'],
+  ['empty binding', '', 'setup_key_missing'],
+  ['non-string binding', { secret: 'fixture' }, 'setup_key_missing'],
+  ['short binding', 'short', 'setup_key_invalid_format'],
+  ['long binding', 's'.repeat(257), 'setup_key_invalid_format'],
+  ['newline in binding', env.SETUP_KEY + '\n', 'setup_key_invalid_format'],
+  ['leading space in binding', ' ' + env.SETUP_KEY, 'setup_key_invalid_format'],
+  ['internal space in binding', 'synthetic fixture with whitespace', 'setup_key_invalid_format'],
+  ['non-ASCII binding', 'синтетический-тестовый-ключ', 'setup_key_invalid_format'],
+]) {
+  test(`safe diagnosis for ${name}`, async (t) => {
+    const mock = t.mock.method(globalThis, 'fetch', async () => { throw Error('must not call'); });
+    const response = await worker.fetch(owner('diagnose'), { ...env, SETUP_KEY: key });
+    assert.equal(response.status, 403);
+    const body = await response.json();
+    assert.equal(body.reason, reason);
+    assert.equal(body.diagnostics.authenticated, false);
+    assert.equal(mock.mock.callCount(), 0);
+  });
+}
+
+test('missing/invalid Authorization is distinguished without accepting unauthenticated actions', async (t) => {
+  const mock = t.mock.method(globalThis, 'fetch', async () => { throw Error('must not call'); });
+  for (const action of ['diagnose', 'check', 'connect']) {
+    for (const header of [null, 'Basic synthetic', 'Bearer short', 'Bearer synthetic key with spaces']) {
+      const request = owner(action);
+      if (header === null) request.headers.delete('Authorization');
+      else request.headers.set('Authorization', header);
+      const response = await worker.fetch(request, env);
+      assert.equal(response.status, 403);
+      const body = await response.json();
+      assert.equal(body.reason, header === null ? 'authorization_missing' : 'authorization_invalid_format');
+      assert.equal(body.diagnostics.authorization_present, header !== null);
+      assert.equal(body.diagnostics.authenticated, false);
+    }
+  }
+  assert.equal(mock.mock.callCount(), 0);
+});
+
+test('exact comparison rejects first/last/case/length changes and never trims the stored key', async (t) => {
+  const mock = t.mock.method(globalThis, 'fetch', async () => { throw Error('must not call'); });
+  for (const candidate of [
+    'X' + env.SETUP_KEY.slice(1), env.SETUP_KEY.slice(0, -1) + 'X',
+    env.SETUP_KEY.toUpperCase(), env.SETUP_KEY + 'X', env.SETUP_KEY.slice(0, -1),
+  ]) {
+    const response = await worker.fetch(owner('diagnose', candidate), env);
+    assert.equal(response.status, 403);
+    assert.equal((await response.json()).reason, 'key_mismatch');
+  }
+  assert.equal(mock.mock.callCount(), 0);
+});
+
+test('diagnostics is an allowlist without values, secret lengths, fragments or hashes', async (t) => {
+  t.mock.method(globalThis, 'fetch', async () => { throw Error('must not call'); });
+  const version = '01234567-89ab-cdef-0123-456789abcdef';
+  const metadata = { ...env, CF_VERSION_METADATA: { id: version, tag: env.SETUP_KEY } };
+  const response = await worker.fetch(owner('diagnose', 'synthetic-but-incorrect-owner-key'), metadata);
+  const body = await response.json();
+  assert.deepEqual(Object.keys(body.diagnostics).sort(), [
+    'revision', 'worker_version_id', 'setup_key_present', 'setup_key_format_valid',
+    'bot_token_present', 'webhook_secret_present', 'bot_secrets_format_valid',
+    'authorization_present', 'authorization_format_valid', 'authenticated',
+  ].sort());
+  assert.equal(body.diagnostics.worker_version_id, version);
+  for (const [key, value] of Object.entries(body.diagnostics)) {
+    if (!['revision', 'worker_version_id'].includes(key)) assert.equal(typeof value, 'boolean');
+  }
+  const text = JSON.stringify(body);
+  for (const secret of Object.values(env)) {
+    assert.ok(!text.includes(secret));
+    assert.ok(!text.includes(secret.slice(0, 12)));
+    const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(secret));
+    assert.ok(!text.includes(Buffer.from(digest).toString('hex')));
+    assert.ok(!text.includes(Buffer.from(digest).toString('base64')));
+  }
+  assert.equal(response.headers.get('Cache-Control'), 'no-store');
+});
+
+test('public setup renders binding booleans and only a validated version UUID, never secrets', async () => {
+  const response = await worker.fetch(new Request('https://worker.example/setup'), {
+    ...env, CF_VERSION_METADATA: { id: '<script>' + env.SETUP_KEY + '</script>' },
+  });
+  const html = await response.text();
+  assert.ok(html.includes('setup-auth-v2'));
+  assert.ok(html.includes('"setup_key_present": true'));
+  assert.ok(html.includes('"worker_version_id": null'));
+  assert.ok(!html.includes('__SETUP_DEPLOYMENT__'));
+  for (const secret of Object.values(env)) assert.ok(!html.includes(secret));
+});
+
+test('key-only diagnosis can run when bot secrets are absent, but check/connect still fail closed', async (t) => {
+  const mock = t.mock.method(globalThis, 'fetch', async () => { throw Error('must not call'); });
+  const onlyOwner = { SETUP_KEY: env.SETUP_KEY };
+  assert.equal((await worker.fetch(owner('diagnose'), onlyOwner)).status, 200);
+  for (const action of ['check', 'connect']) {
+    const response = await worker.fetch(owner(action), onlyOwner);
+    assert.equal(response.status, 503);
+    const body = await response.json();
+    assert.equal(body.error, 'secrets_not_configured');
+    assert.equal(body.diagnostics.bot_secrets_format_valid, false);
+  }
+  assert.equal(mock.mock.callCount(), 0);
+});

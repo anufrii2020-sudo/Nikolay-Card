@@ -67,7 +67,7 @@
 
 ## Если возникла ошибка
 
-- `forbidden` — SETUP_KEY не совпадает с Secret Cloudflare, слишком короткий либо ещё не применён Deploy.
+- `forbidden` — выполните [безопасную диагностику SETUP_KEY](AUTH-DIAGNOSTICS.md): новая страница показывает точную категорию отказа и версию Production без раскрытия ключа. Сначала используйте «Проверить ключ без Telegram»; BOT_TOKEN и WEBHOOK_SECRET менять не нужно.
 - `secrets_not_configured` — проверьте BOT_TOKEN и WEBHOOK_SECRET, тип Secret, отсутствие пробелов, затем Deploy.
 - `wrong_bot` — токен принадлежит другому боту; нужен @NikolayTransportBot.
 - `telegram_unavailable` — проверьте актуальность BOT_TOKEN и повторите позже. Подробности намеренно не выводятся, чтобы не раскрыть токен.
