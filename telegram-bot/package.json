@@ -1,0 +1,7 @@
+{
+  "name": "nikolay-transport-start",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "node test/worker.test.js" },
+  "engines": { "node": ">=22" }
+}
