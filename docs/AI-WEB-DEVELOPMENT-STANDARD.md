@@ -1,6 +1,27 @@
 # GPT + Codex + Modern Web Guidance — operational standard
 
-Status as of 2026-11-14: **AI instructions added in a proposed branch; installation of Modern Web Guidance in Codex is NOT verified**.
+Status as of 2026-11-14: **repository instructions are active; Modern Web Guidance 1.0.0 was verified in one Codex Cloud task, but the plugin is not yet part of a reusable Cloud environment configuration**.
+
+## Verified Codex Cloud integration
+- Repository revision checked: `2dc4e4a85bd334d338aa9d551cfa6ac2565ad679`.
+- Environment checked: Codex CLI `0.167.0-alpha.4`, Node.js `24.22.1`.
+- Installed plugin: `modern-web-guidance@googlechrome` version `1.0.0`, from the official `GoogleChrome/modern-web-guidance` marketplace pinned to tag `v1.0.0` (commit `4dd968349e54ca45a05dd5c818fb035c9054b022`).
+- Verification completed: `codex plugin list --json` reported the plugin as installed and enabled; the official CLI returned search results and retrieved the `responsive-design` guide in offline mode.
+- No application dependency, package manifest, lockfile, site code, Worker code or bot code was changed.
+
+The plugin files are installed under the Codex user directory for that cloud machine. This proves that the current Codex Cloud runtime supports the plugin, but it does not prove that a fresh task will inherit it.
+
+## Persistence
+- `AGENTS.md` and this document are repository files, so they remain available in future checkouts and sessions after the documentation branch is reviewed and merged.
+- A plugin installed in the current machine's Codex user directory is task/environment state. The verified task had no reusable source environment configuration, so the plugin is not guaranteed to exist in a newly provisioned session.
+- For automatic availability in future tasks, add the repository and the two official Codex plugin commands below to a reusable Cloud environment setup, then publish/promote that environment configuration and verify it from a new task:
+
+```shell
+codex plugin marketplace add GoogleChrome/modern-web-guidance --ref v1.0.0
+codex plugin add modern-web-guidance@googlechrome
+```
+
+- Until that reusable environment is published, every new task must run `codex plugin list --json` before claiming the plugin is available. If it is absent, follow the official repository instructions to install it or use the documented on-demand CLI after checking the package source and version.
 
 ## Responsibilities
 - GPT: problem definition, business logic, testable acceptance criteria, risk review. No claim of deployment without evidence.
